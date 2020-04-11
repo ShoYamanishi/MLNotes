@@ -1,5 +1,5 @@
 
-# PRML (1.58) : Why <a><img src="eq_001.png" style="position:relative;top:25px;height:100px;"></a> ?
+# PRML (1.58) : Why <a><img src="eq_001.png" style="position:relative;top:0px;height:10px;"></a> ?
 
 The equation (1.58) in **Pattern Recogntion and Machine Learming** by Bishop is apparently 
 the first problem many readers including me encounter.
