@@ -1,0 +1,303 @@
+\documentclass[a4]{article}
+\usepackage{amssymb}
+\usepackage{amsmath}
+\usepackage{bm}
+
+\DeclareMathOperator*{\argmax}{argmax}
+\DeclareMathOperator*{\argmin}{argmin}
+
+%opening
+\title{Quick Refresher on EM Algorithm}
+\author{Shoichiro Yamanishi}
+
+\begin{document}
+
+\maketitle
+
+\begin{abstract}
+This is a personal notes as my own memory aid on EM for my future-self to avoid 
+going through the books trying to find the relevant parts and re-read them, which
+is time consuming.
+This is also a summplemental material to explain why the maximization step
+works for MLE with i.i.d. samples, which was not obvious to me in the text books.
+
+PRML\cite{bishop2007} Chap 9.4. explains the EM algorithm 
+with the standard graph plot of lower bounds and $\theta$ along the horizontal axis.
+Computer Vision by JD Prince\cite{prince_2012} Chap 7.3.,
+also has a better and more succinct explanation of EM.
+
+The purpose of this document is to explain the EM algorithm without significant gap
+throught the course of deductions at the cost of lengthiness, and to explain why
+the M-Step works for MLE, which is omitted in the text books.
+
+\end{abstract}
+
+\section{EM-Algorithm}
+
+EM-Algorithm is applicable for the following case.
+
+\begin{itemize}
+
+\item you have samples $\mathbf{x_1}, \mathbf{x_2}, \cdots, \mathbf{x_N}$, that are i.i.d.
+
+\item you want to model a probability distribution over $\mathbf{x}$ with latent variables
+$\mathbf{z}$ and parameters like $\int p(\mathbf{x},\mathbf{z}|\bm{\theta})d\mathbf{z}$ .
+
+\item you want MLE. i.e.
+$\underset{\bm{\theta}}{\mathrm{argmax}} \left(
+     \Sigma_{i = 1}^N \ln \int p(\mathbf{x}_i,\mathbf{z} | \bm{\theta})d\mathbf{z}
+\right)$
+
+\item $\int p(\mathbf{x},\mathbf{z}|\bm{\theta})d\mathbf{z}$ is intractable.
+
+\item 
+$\nabla_{\bm{\theta}} \left(
+     \mathbb{E}_{\mathbf{z}\sim q(\mathbf{z})}[p(\mathbf{x},\mathbf{z}|\bm{\theta})]
+\right)$
+is tractable for some probability distribution $q(\mathbf{z})$.
+
+\end{itemize}
+
+
+Usually
+$ \mathbb{E}_{\mathbf{z}\sim q(\mathbf{z})}[p(\mathbf{x},\mathbf{z}|\bm{\theta})]$
+is represented with some sufficient statistics of
+$\mathbf{z}$
+such as moments
+$\mathbb{E}[\mathbf{z}]$
+and
+$\mathbb{E}[\mathbf{z}\mathbf{z}^T]$.
+Preferably,
+$ \mathbb{E}[p(\mathbf{x},\mathbf{z}|\bm{\theta})]$
+is convex w.r.t.
+$\bm{\theta}$
+, and
+$\nabla_{\bm{\theta}} ( \mathbb{E}[p(\mathbf{x},\mathbf{z}|\bm{\theta})] )$
+is analytically in closed form so that
+$\nabla_{\bm{\theta}} ( \mathbb{E}[p(\mathbf{x},\mathbf{z}|\bm{\theta})] ) = 0$
+can be used. 
+
+
+It is difficult to directly optimize
+$\bm{\theta}$
+but we can introduce a distribution
+$q(\mathbf{z})$
+over the latent variable 
+$\mathbf{z}$
+to guide
+$\bm{\theta}$
+toward optimization.
+This is basically a \begin{bf}coordinate descent algorithm\end{bf}
+ that alternates between the variational space of
+$q(\mathbf{z})$
+and the parameter space of
+$\bm{\theta}$, 
+which are mutually independent conditioned on
+$\mathbf{x}$
+, since 
+$q(\mathbf{z})$
+is arbitrary.
+
+
+\subsection{E-Step}
+This step is basically a coordinate descent in the variational space of $q(\mathbf{z})$.
+In the variational space, the optimum condition is derived by the following argument.
+Consider the following.
+\[
+    \ln p(\mathbf{x}|\bm{\theta}) =
+    \ln (\int p(\mathbf{x},\mathbf{z}|\bm{\theta})d\mathbf{z})
+\]
+We arbitrarily introduce a probability density function $ 0 < q(\mathbf{z}) < \infty$.
+\[
+    \ln p(\mathbf{x}|\bm{\theta}) = 
+    \ln (\int q(\mathbf{z}) \frac{p(\mathbf{x},\mathbf{z}|\bm{\theta})}
+                                 {q(\mathbf{z})} 
+         d\mathbf{z})
+\]
+By Jensen's inequality, $\mathbb{E}[f(x)] \le f(\mathbb{E}[x])$
+for any concave function $f(x)$, and $\ln(x)$ is a concave function.
+Therefore,
+$\ln(\mathbb{E}_{\mathbf{z} \sim q(\mathbf{z})}[g(\mathbf{z}]))
+\ge
+\mathbb{E}[ln(g(\mathbf{z}))]
+$
+and then
+$
+ \ln (\int q(\mathbf{z})g(\mathbf{z}) d\mathbf{z})
+\ge
+\int q(\mathbf{z}) \ln g(\mathbf{z}) d\mathbf{z}
+$.
+
+\begin{equation}
+\begin{aligned}
+\ln p(\mathbf{x}|\bm{\theta}) &\ge 
+    \int q(\mathbf{z}) \ln \left(
+        \frac{ p(\mathbf{x},\mathbf{z}|\bm{\theta}) }
+             { q(\mathbf{z}) }
+    \right) d\mathbf{z} 
+    = \mathcal{L} ( q(\mathbf{z}), \bm{\theta} ) \label{elbo}\\
+\\
+&= \int q(\mathbf{z}) \ln \left(
+    \frac{ p(\mathbf{z}|\mathbf{x},\bm{\theta})p(\mathbf{x}|\bm{\theta}) }
+         { q(\mathbf{z}) }
+\right) d\mathbf{z}\\
+\\
+&= \int q(\mathbf{z}) \ln p(\mathbf{x}|\bm{\theta})d\mathbf{z} 
+ +
+   \int q(\mathbf{z}) \ln \left( \frac{ p(\mathbf{z}|\mathbf{x},\bm{\theta}) }
+                                      { q(\mathbf{z})                        } \right)
+d\mathbf{z}\\
+&= \ln p(\mathbf{x}|\bm{\theta}) 
+ - D_{KL}( q(\mathbf{z}) || p( \mathbf{z} | \mathbf{x}, \bm{\theta}) )
+\\
+\end{aligned}
+\end{equation}
+$\mathcal{L}(q(\mathbf{z}), \bm{\theta})$
+is ELBO (Evidence Lower Bound).
+If
+$( q(\mathbf{z}) = p(\mathbf{z}|\mathbf{x},\bm{\theta}))$
+then the KL divergence above vanishes, and hence the ELBO is maximal.
+Therfore for a fixed $\mathbf{x}_i$ and $\bm{\theta^*}$,
+\begin{equation}
+\begin{aligned}
+\\
+    \underset{ q(\mathbf{z}) }{ \mathrm{argmax} }(ELBO)
+&=
+    \ln p(\mathbf{z}|\mathbf{x}_i,\bm{\theta^*})\\
+\\
+    \underset{ q(\mathbf{z}) }{ \mathrm{max} }(ELBO)
+&=
+    \mathbb{E}_{\mathbf{z}\sim p(\mathbf{z}|\mathbf{x}_i,\bm{\theta}) }[
+        \ln p(  \mathbf{x}_i,\mathbf{z} | \bm{\theta} ) 
+              - \ln p( \mathbf{z} | \mathbf{x}_i,\bm{\theta} )
+    ]\\
+&=
+    \ln p( \mathbf{x}_i | \bm{\theta^*} ) 
+\\
+\end{aligned}
+\end{equation}
+
+
+\subsection{M-Step}
+
+Now, assume $q(\mathbf{z})$ is fixed at 
+$p(\mathbf{z}|\mathbf{x}_i,\bm{\theta^*})$ in 
+$\mathcal{L}(q(\mathbf{z}), \bm{\theta})$ .
+Can we further raise the evidence lower bound by changing $\bm{\theta}$?
+I.e., is there $\bm{\theta}$ such that:
+\[
+\Sigma_{i = 1}^N \left(
+    \ln \left( \int p(\mathbf{x}_i,\mathbf{z}|\bm{\theta})d\mathbf{z} \right)
+\right)  
+>
+\Sigma_{i = 1}^N \left(
+    \ln \left( \int p(\mathbf{x}_i,\mathbf{z}|\bm{\theta^*})d\mathbf{z} \right)
+\right) 
+\]
+The following argument says yes.
+From equation \ref{elbo}, for each $\mathbf{x}_i$, 
+\begin{equation}
+    \mathcal{L}(q(\mathbf{z}), \bm{\theta})
+= 
+    \mathbb{E}_{\mathbf{z}\sim q(\mathbf{z}) }\left[
+          \ln p( \mathbf{x}_i,\mathbf{z}|\bm{\theta} )
+        - \ln p( \mathbf{z}|\mathbf{x}_i,\bm{\theta} )
+    \right]
+\end{equation}
+We fix $q(\mathbf{z})$ at $p(\mathbf{z}|\mathbf{x}_i,\bm{\theta^*})$.
+\begin{equation}
+    \mathcal{L}( p( \mathbf{z} | \mathbf{x}_i, \bm{\theta^*} ), \bm{\theta} )
+= 
+    \mathbb{E}_{\mathbf{z}\sim p(\mathbf{z}|\mathbf{x}_i,\bm{\theta^*}) }\left[
+          \ln p( \mathbf{x}_i,\mathbf{z} | \bm{\theta} ) 
+        - \ln p( \mathbf{z} | \mathbf{x}_i,\bm{\theta} )
+    \right]\label{eq_upper}
+\end{equation}
+If we also fix $\bm{\theta}$ at $\bm{\theta^*}$, then
+\begin{equation}
+    \mathcal{L}( p(\mathbf{z} | \mathbf{x}_i,\bm{\theta^*} ), \bm{\theta^*} )
+= 
+    \mathbb{E}_{\mathbf{z}\sim p(\mathbf{z}|\mathbf{x}_i,\bm{\theta^*}) }\left[
+          \ln p( \mathbf{x}_i,\mathbf{z} | \bm{\theta^*} ) 
+        - \ln p( \mathbf{z} | \mathbf{x}_i, \bm{\theta^*} ) 
+    \right]\label{eq_base}
+\end{equation}
+Subtract equation \ref{eq_base} from \ref{eq_upper}, then
+\begin{equation}
+\begin{aligned}
+    &\mathcal{L}( p(\mathbf{z} | \mathbf{x}_i,\bm{\theta^*} ), \bm{\theta}) 
+-
+     \mathcal{L}( p(\mathbf{z} | \mathbf{x}_i,\bm{\theta^*} ), \bm{\theta^*} )\\
+& =
+      \mathbb{E}_{ \mathbf{z} \sim p( \mathbf{z} | \mathbf{x}_i, \bm{\theta^*} ) }\left[
+          \ln p( \mathbf{x}_i,\mathbf{z} | \bm{\theta} ) 
+        - \ln p( \mathbf{z} | \mathbf{x}_i, \bm{\theta})
+      \right] 
+    - \mathbb{E}_{ \mathbf{z} \sim p( \mathbf{z} | \mathbf{x}_i, \bm{\theta^*} ) }\left[
+          \ln p( \mathbf{x}_i, \mathbf{z} | \bm{\theta^*} )
+        - \ln p( \mathbf{z} | \mathbf{x}_i, \bm{\theta^*} )
+      \right]\label{eqbase}\\
+& =
+      \mathbb{E}_{ \mathbf{z} \sim p( \mathbf{z} | \mathbf{x}_i, \bm{\theta^*} ) }\left[
+          \ln p( \mathbf{x}_i, \mathbf{z} | \bm{\theta}) 
+        - \ln p( \mathbf{x}_i, \mathbf{z} | \bm{\theta^*}) 
+      \right] 
+    + \mathbb{E}_{ \mathbf{z} \sim p( \mathbf{z} | \mathbf{x}_i, \bm{\theta^*}) }\left[
+          \ln p( \mathbf{z} | \mathbf{x}_i, \bm{\theta^*} )
+        - \ln p( \mathbf{z} | \mathbf{x}_i, \bm{\theta} )
+      \right]\\
+& =
+      \mathbb{E}_{ \mathbf{z} \sim p( \mathbf{z} | \mathbf{x}_i, \bm{\theta^*} ) }\left[
+          \ln p( \mathbf{x}_i, \mathbf{z} | \bm{\theta} )
+        - \ln p( \mathbf{x}_i, \mathbf{z} | \bm{\theta^*})
+      \right]
+    + D_{KL}\left(    p( \mathbf{z} | \mathbf{x}_i, \bm{\theta^*} ) 
+                   || p( \mathbf{z} | \mathbf{x}_i, \bm{\theta}   )\right)\\
+\end{aligned}
+\end{equation}
+This implies 
+\begin{equation}
+\begin{aligned}
+      &\mathbb{E}_{ \mathbf{z} \sim p( \mathbf{z} | \mathbf{x}_i,\bm{\theta^*} ) }\left[
+          \ln p( \mathbf{x}_i, \mathbf{z} | \bm{\theta})
+      \right]
+    \ge
+       \mathbb{E}_{ \mathbf{z} \sim p( \mathbf{z} | \mathbf{x}_i, \bm{\theta^*} ) }\left[
+          \ln p( \mathbf{x}_i, \mathbf{z} | \bm{\theta^*})
+      \right] \\
+\Rightarrow\:\:\: &
+      \mathcal{L}( p( \mathbf{z} | \mathbf{x}_i, \bm{\theta^*} ), \bm{\theta} )
+    \ge
+      \mathcal{L}( p( \mathbf{z} | \mathbf{x}_i, \bm{\theta^*} ), \bm{\theta^*} )
+\end{aligned}
+\end{equation}
+and this holds for each
+$\mathbf{x}_i$
+. Therefore, in the MLE setting,
+\begin{equation}
+\begin{aligned}
+    &\Sigma_{i = 1}^N \left(
+            \mathbb{E}_{ \mathbf{z} \sim p( \mathbf{z} | \mathbf{x}_i, \bm{\theta^*} ) }
+            \left[
+                \ln p( \mathbf{x}_i, \mathbf{z} | \bm{\theta} )
+            \right]
+        -
+            \mathbb{E}_{ \mathbf{z} \sim p( \mathbf{z} | \mathbf{x}_i,\bm{\theta^*} ) }
+            \left[
+                \ln p( \mathbf{x}_i, \mathbf{z} | \bm{\theta^*} )
+            \right]
+    \right) \le 0\\
+\Rightarrow\:\:\:
+        &\ln p( \mathbf{x} | \bm{\theta} ) 
+    \ge  \ln p( \mathbf{x} | \bm{\theta^*} )\label{eq:mstep}\\
+\end{aligned}
+\end{equation}
+
+Taking the argmax on the RHS of equation \ref{eq:mstep} corresponds to the coordinate descent in the parameter space $\bm{\theta}$.
+
+
+\bibliography{em_alg.bib}{}
+\bibliographystyle{plain}
+
+
+\end{document}

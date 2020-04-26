@@ -1,0 +1,179 @@
+\documentclass[a4]{article}
+\usepackage{amssymb}
+\usepackage{amsmath}
+\usepackage{bm}
+\usepackage{url}
+
+\DeclareMathOperator*{\argmax}{argmax}
+\DeclareMathOperator*{\argmin}{argmin}
+
+\newtheorem{defn}{Definition}
+
+%opening
+\title{Quick Reflesher on Variational Inference and Mean Field Approximation}
+\author{Shoichiro Yamanishi}
+
+\begin{document}
+
+\maketitle
+
+
+\section{Introduction}
+This is a quick refresher on variational inference and mean field approximation.
+The purpose of this document is as a self-contained document to enhance the course notes \cite{Blei1} by D. Blei 
+with my own annotations to fill the gaps between deductions in order for my future-self 
+to refresh this topic quickly without a pencil and paper.
+
+The variational inference and the mean field approximation are explained in 
+PRML\cite{bishop2007} 10.1 and Barber\cite{Barber2011} 28.3, 28.4, but I like the course notes \cite{Blei1} by D. Blei
+available online at Princeton is best, as it gives the flow of explanation from the problem setting down to the optimality
+of the factroized approximator for the exponential families. However, it is a bit too terse to me.
+
+
+\section{Variational Inference}
+
+
+Variational Inference is applicable for the following case.
+
+\begin{itemize}
+\item you have samples $\mathbf{x_1}, \mathbf{x_2}, \cdots, \mathbf{x_N}$, that are i.i.d.
+\item you want to model a probability distribution over $\mathbf{x}$ with latent variables and parameters like $\int p(\mathbf{x},\mathbf{z}|\bm{\theta})d\mathbf{z}$ .
+\item you want the posterior $p(\mathbf{z}|,\mathbf{x}, \bm{\theta})$ but it is intractable. Especially
+$p(\mathbf{z}|,\mathbf{x}, \bm{\theta}) = \frac{p(\mathbf{z},\mathbf{x}| \bm{\theta})} {\int p(\mathbf{z},\mathbf{x}| \bm{\theta})d\mathbf{z}}$ and the denominator is intractable due to huge dimensionality etc.
+\item you want to approximate $p(\mathbf{z}|\mathbf{x}, \bm{\theta})$ by some probability distribution 
+$q(\mathbf{z}|\mathbf{x}, \bm{\nu})$. $\bm{\nu}$ is called variational parameter.
+\end{itemize}
+
+\section{How to find $q(\mathbf{z}|\mathbf{x}, \bm{\nu})$? KL divergeance and ELBO}
+
+Consider the following.
+\[
+\ln p(\mathbf{x}|\bm{\theta}) = \ln (\int p(\mathbf{x},\mathbf{z}|\bm{\theta})d\mathbf{z})
+\]
+
+Assume $0 < q(\mathbf{z}|\mathbf{x}, \bm{\nu}) < \infty$.
+\[
+\ln p(\mathbf{x}|\bm{\theta}) = \ln (\int q(\mathbf{z}|\mathbf{x}, \bm{\nu}) \frac{p(\mathbf{x},\mathbf{z}|\bm{\theta})}{q(\mathbf{z}|\mathbf{x}, \bm{\nu})} d\mathbf{z})
+\]
+By Jensen's inequality ($\mathbb{E}[f(x)] \le f(\mathbb{E}[x])$ for any concave function $f(x)$),
+\begin{equation}
+\begin{aligned}
+\ln p(\mathbf{x}|\bm{\theta}) &\ge \int q(\mathbf{z}|\mathbf{x}, \bm{\nu}) \ln ( \frac{p(\mathbf{x},\mathbf{z}|\bm{\theta})}{q(\mathbf{z}|\mathbf{x}, \bm{\nu})} d\mathbf{z} = \mathcal{L}(q(\mathbf{z}), \bm{\theta})\label{eq1}\\
+&= \int q(\mathbf{z}|\mathbf{x}, \bm{\nu}) \ln ( \frac{p(\mathbf{z}|\mathbf{x},\bm{\theta})p(\mathbf{x}|\bm{\theta})}{q(\mathbf{z}|\mathbf{x}, \bm{\nu})} d\mathbf{z}\\
+&= \int q(\mathbf{z}|\mathbf{x}, \bm{\nu}) \ln p(\mathbf{x}|\bm{\theta})d\mathbf{z} +
+\int q(\mathbf{z}|\mathbf{x}, \bm{\nu}) \ln ( \frac{p(\mathbf{z}|\mathbf{x},\bm{\theta})}{q(\mathbf{z})}) d\mathbf{z}\\
+&= \ln p(\mathbf{x}|\bm{\theta}) - D_{KL}(q(\mathbf{z}|\mathbf{x}, \bm{\nu}) || p(\mathbf{z}|\mathbf{x},\bm{\theta}))
+\end{aligned}
+\end{equation}
+
+If $( q(\mathbf{z}) = p(\mathbf{z}|\mathbf{x},\bm{\theta}))$ then the KL divergence above
+vanishes, and hence the ELBO is maximal. Therfore for a fixed $\mathbf{x}_i$ and unknown $\bm{\theta^*}$,
+
+\begin{equation}
+\begin{aligned}
+\underset{q(\mathbf{z})}{\mathrm{argmax}}(ELBO) &= \ln p(\mathbf{z}|\mathbf{x}_i,\bm{\theta^*})\\
+\underset{q(\mathbf{z})}{\mathrm{max}}(ELBO) &= \mathbb{E}_{\mathbf{z}\sim p(\mathbf{z}|\mathbf{x}_i,\bm{\theta}) }[ \ln p(\mathbf{x}_i,\mathbf{z}|\bm{\theta}) - \ln p(\mathbf{z}|\mathbf{x}_i,\bm{\theta}) ]\\
+&= \ln p(\mathbf{x}_i|\bm{\theta^*}) 
+\end{aligned}
+\end{equation}
+
+$\mathcal{L}(q(\mathbf{z}), \bm{\theta})$ is ELBO (Evidence Lower Bound).
+
+In the variational inference, we try to maximize ELBO.
+In the following argument we omit $\bm{\theta}$ as it is not relevant to the argument.
+Maximization of ELBO w.r.t $\bm{\theta}$ can be handled by the M-step of the variational EM algorithm.
+
+\section{Mean Field Approximation}
+One way to find a good $q(\mathbf{z}|\mathbf{x}, \bm{\nu})$ to increase ELBO is to use mean field approximation.
+In the mean field approximation, you break some of the dependencies among $\mathbf{z}$ conditioned on $\mathbf{x}$, and factrize.
+
+\begin{equation}
+q(\mathbf{z}|\mathbf{x}, \bm{\nu}) =  \prod_i q_i ( \mathbf{z}_i)
+\end{equation}
+where $\mathbf{z} \:= \cup \mathbf{z}_{i}$.
+
+
+In the following argument we denote $\prod_{i\ne j} q_i ( \mathbf{z}_i) (= \frac{\prod_{i}q_i(\mathbf{z}_i)}{q_j(\mathbf{z}_j)})$
+by $q_{\setminus j} ( \mathbf{z}_{\setminus j})$.
+Then we try to improve ELBO with each $q_i ( \mathbf{z}_i)$ separately, fixing $q_{\setminus i} ( \mathbf{z}_{\setminus i})$.
+\begin{equation}
+\begin{aligned}
+q^*_i(\mathbf{z}_i) &= \underset{q(\mathbf{z}_i)}{\mathrm{argmax}}(\mathcal{L}(q(\mathbf{z}_i), \bm{\theta}))\\
+                   &= \underset{q(\mathbf{z}_i)}{\mathrm{argmax}}( - D_{KL}(q(\mathbf{z}_i) || p(\mathbf{z},\mathbf{x})))\\
+                   &= \underset{q(\mathbf{z}_i)}{\mathrm{argmax}}(\: \int q(\mathbf{z}_i) \int q(\mathbf{z}_{\setminus i}) \ln p(\mathbf{z},\mathbf{x})d\mathbf{z}_{\setminus i} d\mathbf{z}_i
+                    - \int q(\mathbf{z}_i) \int q(\mathbf{z}_{\setminus i}) \ln q(\mathbf{z})d\mathbf{z}_{\setminus i} d\mathbf{z}_i \: )\label{eq_argmax}\\
+\end{aligned}
+\end{equation}
+The first term inside the argmax in the RHS will be:
+\begin{equation}
+\begin{aligned}
+Term 1 &= \int q(\mathbf{z}_i) \int q(\mathbf{z}_{\setminus i}) \ln p(\mathbf{z}_i, \mathbf{z}_{\setminus i}, \mathbf{x})d\mathbf{z}_{\setminus i} d\mathbf{z}_i\\
+       &= \int q(\mathbf{z}_i) \int q(\mathbf{z}_{\setminus i}) \ln p(\mathbf{z}_i, \mathbf{x} | \mathbf{z}_{\setminus i})d\mathbf{z}_{\setminus i} d\mathbf{z}_i
+        - \int q(\mathbf{z}_i) \int q(\mathbf{z}_{\setminus i}) \ln p(\mathbf{z}_{\setminus i}, \mathbf{x})d\mathbf{z}_{\setminus i} d\mathbf{z}_i\\
+       &= \int q(\mathbf{z}_i) \mathbb{E}_{\mathbf{z}\sim q(\mathbf{z}_{\setminus i})}[ \ln p(\mathbf{z}_i, \mathbf{x} | \mathbf{z}_{\setminus i}) ] d\mathbf{z}_i - const\label{eq_term1}\\
+\end{aligned}
+\end{equation}
+The second term will be:
+\begin{equation}
+\begin{aligned}
+Term 2 &= - \int q(\mathbf{z}_i) \int q(\mathbf{z}_{\setminus i}) \ln ( q(\mathbf{z}_i)q(\mathbf{z}_{\setminus i}) ) d\mathbf{z}_{\setminus i} d\mathbf{z}_i\\
+       &= - \int q(\mathbf{z}_i) \int q(\mathbf{z}_{\setminus i}) \ln q(\mathbf{z}_i) d\mathbf{z}_{\setminus i} d\mathbf{z}_i
+          - \int q(\mathbf{z}_i) \int q(\mathbf{z}_{\setminus i}) \ln q(\mathbf{z}_{\setminus i}) ) d\mathbf{z}_{\setminus i} d\mathbf{z}_i\\
+       &= - \int q(\mathbf{z}_{\setminus i}) d\mathbf{z}_{\setminus i} \int q(\mathbf{z}_i) \ln q(\mathbf{z}_i) d\mathbf{z}_i
+          - \int q(\mathbf{z}_i) d\mathbf{z}_i \int q(\mathbf{z}_{\setminus i}) \ln q(\mathbf{z}_{\setminus i}) ) d\mathbf{z}_{\setminus i} \\
+       &= - \int q(\mathbf{z}_i) \ln q(\mathbf{z}_i) d\mathbf{z}_i
+          - \int q(\mathbf{z}_{\setminus i}) \ln q(\mathbf{z}_{\setminus i}) ) d\mathbf{z}_{\setminus i} \\
+       &= - \int q(\mathbf{z}_i) \ln q(\mathbf{z}_i) d\mathbf{z}_i - const
+\end{aligned}
+\end{equation}
+Therefore, equation \ref{eq_argmax} will be reorganized as follows:
+\begin{equation}
+\begin{aligned}
+q^*_i(\mathbf{z}_i) &= \underset{q(\mathbf{z}_i)}{\mathrm{argmax}}(\int q(\mathbf{z}_i) \mathbb{E}_{\mathbf{z}\sim q(\mathbf{z}_{\setminus i})}[ \ln p(\mathbf{z}_i, \mathbf{x} | \mathbf{z}_{\setminus i}) ] d\mathbf{z}_i - \int q(\mathbf{z}_i) \ln q(\mathbf{z}_i) d\mathbf{z}_i)
+\end{aligned}
+\end{equation}
+Now we form a Lagrangian multiplier together with an equality constraint $\int q(\mathbf{z}_i) d\mathbf{z}_i = 1$.
+\begin{equation}
+\begin{aligned}
+\mathcal{L}( q(\mathbf{z}_i), \lambda ) &= \int q(\mathbf{z}_i) \mathbb{E}_{\mathbf{z}\sim q(\mathbf{z}_{\setminus i})}[ \ln p(\mathbf{z}_i, \mathbf{x} | \mathbf{z}_{\setminus i}) ] d\mathbf{z}_i\\
+                                        &\:\:\: - \int q(\mathbf{z}_i) \ln q(\mathbf{z}_i) d\mathbf{z}_i - \lambda \left( \int q(\mathbf{z}_i)d\mathbf{z}_i - 1 \right)\\
+\end{aligned}
+\end{equation}
+\begin{equation}
+\begin{aligned}
+\frac{\partial\mathcal{L}( q(\mathbf{z}_i), \lambda )}{\partial q(\mathbf{z}_i)} &= \mathbb{E}_{\mathbf{z}\sim q(\mathbf{z}_{\setminus i})}[ \ln p(\mathbf{z}_i, \mathbf{x} | \mathbf{z}_{\setminus i}) ]
+ - \ln q(\mathbf{z}_i) -1 - \lambda \\
+&= \mathbb{E}_{\mathbf{z}\sim q(\mathbf{z}_{\setminus i})}[ \ln p(\mathbf{z}_i, \mathbf{x} | \mathbf{z}_{\setminus i}) ] - \ln q(\mathbf{z}_i) + const = 0\\
+\end{aligned}
+\end{equation}
+Here we used $\frac{d}{dq}\ln q = \ln q + 1$.
+This suggests the following form.
+\begin{equation}
+\begin{aligned}
+q^*_i(\mathbf{z}_i) &\propto exp \left( \mathbb{E}_{\mathbf{z}\sim q(\mathbf{z}_{\setminus i})}[ \ln p(\mathbf{z}_i, \mathbf{x} | \mathbf{z}_{\setminus i}) ] \right)\label{eq_optimum_q1}\\
+\end{aligned}
+\end{equation}
+In fact, equation \ref{eq_term1} can be expressed by:
+\begin{equation}
+\begin{aligned}
+Term 1 &= \int q(\mathbf{z}_i) \int q(\mathbf{z}_{\setminus i}) \ln p(\mathbf{z}_i, \mathbf{z}_{\setminus i}, \mathbf{x})d\mathbf{z}_{\setminus i} d\mathbf{z}_i\\
+       &= \int q(\mathbf{z}_i) \mathbb{E}_{\mathbf{z}\sim q(\mathbf{z}_{\setminus i})}[ \ln p(\mathbf{z}_i, \mathbf{z}_{\setminus i}, \mathbf{x}) ] d\mathbf{z}_i\label{eq_term1_2}\\
+\end{aligned}
+\end{equation}
+and $q^*_i(\mathbf{z}_i)$ can be also expressed by:
+\begin{equation}
+\begin{aligned}
+q^*_i(\mathbf{z}_i) &\propto exp \left( \mathbb{E}_{\mathbf{z}\sim q(\mathbf{z}_{\setminus i})}[ \ln p( \mathbf{z}_i, \mathbf{z}_{\setminus i}, \mathbf{x} ) ] \right)\label{eq_optimum_q2}\\
+\end{aligned}
+\end{equation}
+
+
+The equations \ref{eq_optimum_q1} and  \ref{eq_optimum_q2} suggest the form (family) of the approximation $q^*_i(\mathbf{z}_i)$ is determined by the model joint distribution or conditional distribution.
+It also suggests if the model is in the exponential family, then not only the form but also the optimum approximation $q^*_i(\mathbf{z}_i)$ itself is determined.
+
+
+\bibliography{variational_inference.bib}{}
+\bibliographystyle{plain}
+
+
+\end{document}

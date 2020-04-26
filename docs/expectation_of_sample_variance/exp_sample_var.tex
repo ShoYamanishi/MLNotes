@@ -1,0 +1,92 @@
+\documentclass[a4]{article}
+\usepackage{amssymb}
+\usepackage{amsmath}
+\usepackage{bm}
+
+\DeclareMathOperator*{\argmax}{argmax}
+\DeclareMathOperator*{\argmin}{argmin}
+
+%opening
+\title{PRML (1.58) : Why $\mathbb{E}[\sigma_{sample}^2] = \frac{N-1}{N}\sigma^2$ ?}
+\author{Shoichiro Yamanishi}
+\begin{document}
+
+\maketitle
+
+\begin{abstract}
+This equation (1.58) in PRML\cite{bishop2007}
+ is apparently the first problem many readers including me encounter.
+It's in pp27, Chapter 1, Introduction.
+It is not apparent to me why it holds, but no proof is given in the book.
+The following is my take on the proof why the sample variance is biased.
+\end{abstract}
+
+\section{ Because $\sigma_{{x_i}{x_j}} = 0$, if $x_1$ and $x_2$ are independent.}
+
+Assume $x$ is a random variable with distribution $p(x)$ , and $x_1, x_2, \cdots, x_N$ are i.i.d. samples of $x$,
+$\mu_s$ and $\sigma^2_s$ denote the sample mean and the sample variance respectively.
+In the following argument all the expectations are over $p(x)$.
+
+\begin{equation}
+\begin{aligned}
+\mathbb{E}[\sigma_s^2] &= \mathbb{E}[\frac{1}{N}\sum_{i=1}^N(x_i - \mu_s)^2]\\
+&= \frac{1}{N}\mathbb{E}[\sum_{i=1}^Nx_i^2] - \frac{2}{N}\mathbb{E}[\mu_{s}\sum_{i=1}^{N}x_i] + \frac{1}{N}\mathbb{E}[\sum_{i=1}^{N}\mu_{s}^2]\\
+&= \frac{1}{N}\sum_{i=1}^N(\mathbb{E}[x_i^2]) - \frac{2}{N}\mathbb{E}[\mu_{s}N\mu_{s}] + \frac{1}{N}\mathbb{E}[N\mu_{s}^2]\\
+&= \mathbb{E}[x^2] - \mathbb{E}[\mu_{s}^2].\label{eq2}\\
+\\
+\end{aligned}
+\end{equation}
+The conversion from the 2nd to the 3rd row in the first term is due to i.i.d. on $x_i$.
+
+From the formula of variance,
+\begin{equation}
+\begin{aligned}
+\sigma_x^2 &= \mathbb{E}[x^2] - \mathbb{E}[x]^2\\
+           &= \mathbb{E}[x^2] - \mu^2\label{eq3}\\
+\end{aligned}
+\end{equation}
+and,
+\begin{equation}
+\begin{aligned}
+\sigma_{\mu_s}^2 &= \mathbb{E}[\mu_s^2] - \mathbb{E}[\mu_s]^2\\
+           &= \mathbb{E}[\mu_s^2] - \mu_s^2\\
+           &= \mathbb{E}[\mu_s^2] - \mu^2\label{eq4}\\
+\end{aligned}
+\end{equation}
+as $\mathbb{E}[\mu_s] = \mu$ (no bias on the mean).
+
+From equation \ref{eq3} and \ref{eq4},
+\begin{equation}
+\begin{aligned}
+\sigma_x^2 - \sigma_{\mu_s}^2 &= \mathbb{E}[x^2] - \mathbb{E}[\mu_s^2]\label{eq5}.\\
+\end{aligned}
+\end{equation}
+
+From equation \ref{eq2} and \ref{eq5},
+\begin{equation}
+\begin{aligned}
+\mathbb{E}[\sigma_s^2] &= \sigma_x^2 - \sigma_{\mu_s}^2\label{eq6}.\\
+\end{aligned}
+\end{equation}
+
+Here by definition $\sigma_{\mu_s}^2 = V\!\!A\!R[\frac{1}{N}\sum_{i=1}^{N}x_i] = \frac{1}{N^2}V\!\!A\!R[\sum_{i=1}^{N}x_i]$,
+and from i.i.d. assumption,
+\begin{equation}
+\begin{aligned}
+\sigma_{\mu_s}^2 = \frac{1}{N^2}V\!\!A\!R[\sum_{i=1}^{N}x] = \frac{1}{N}V\!\!A\!R[x] = \frac{1}{N}\sigma_x^2\label{eq7}.\\
+\end{aligned}
+\end{equation}
+
+From equation \ref{eq6} and \ref{eq7},
+\begin{equation}
+\begin{aligned}
+\mathbb{E}[\sigma_s^2] &= \frac{N-1}{N}\sigma_x^2\label{eq8}.\\
+\end{aligned}
+\end{equation}
+
+Q.E.D.
+
+\bibliography{exp_sample_var.bib}{}
+\bibliographystyle{plain}
+
+\end{document}
