@@ -24,7 +24,8 @@ The official purpose would be:
 
 * To help other independent-minded self-learners on important topics of machine learning.
 
-
+Those documents are made such that the gaps between the equations along the derivations are minimized to avoid using paper and a pencil to fill them,
+at the cost of redundancy and lengthy-ness.
 
 # Topics
 
