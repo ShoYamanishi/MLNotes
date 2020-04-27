@@ -1,6 +1,6 @@
 # MLNOTES
 
-This is a collection of documents about machine learning and neural networks 
+This is a collection of expository documents about machine learning and neural networks 
 that I have made during the Corona quarantine,
 which has given me convenient time to sort out scribbles I have made 
 in the past and to reorganize them into Tex documents.
