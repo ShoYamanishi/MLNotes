@@ -134,9 +134,17 @@ This section focus on those topics, rather than the Hamiltonion dynamics and
 the numerical simulation.
 
 
+## [Graphical Models and Belief Propagation](docs/graphical_models/graphical_models.pdf)
+It summrizes some key points about the probabilistic graphical models.
 
-## Graphical Models and Belief Propagation
-[work in progress]
+* Conditional independence
+
+* D-Separation
+
+* Markov Blanket
+
+It also treats the belief propagation in chains and trees for maginal distribution and MAP.
+
 
 ## Sequencial Models (HMM, Baum-Welch, Viterbi, Kalman Filter, LDS)
 [work in progress]
