@@ -146,8 +146,23 @@ It summrizes some key points about the probabilistic graphical models.
 It also treats the belief propagation in chains and trees for maginal distribution and MAP.
 
 
-## Sequencial Models (HMM, Baum-Welch, Viterbi, Kalman Filter, LDS)
-[work in progress]
+## [Sequencial Models (HMM, Baum-Welch, Viterbi, Kalman Filter, RTS-Smoother)](docs/docs/baum_welch_viterbi_kalman/chain_discrete.pdf)
+
+This is a personal notes as my own memory aid on Hidden Markov Models and Linear Dynamical Systems.
+Specifically the following topics.
+
+* Baum-Welch EM algorithm 
+* Viterbi algorithm
+* Kalman Filter
+* Rauch-Tung-Striebel smoother and EM algorithm
+
+Chapter 13 of PRML is an excellent source for HMM (Baum-Welch, Viterbi)
+and Kalman Filter, but not so good for Kalman smoother (RTS smoother).
+Especially the derivation of  p(z_n, zn+1| z_1, ..., z_N), 
+which is required for EM-algorithm, is a bit shaky between (13.103) and (13.104).
+For deriving RTS smoother, I used an excellent course notes from Professor Särkkä of Aalto Univ.
+Also, Chap 24 of Barber contains comprehensive materials for LDS,
+but it is a bit difficult to understand and I personally do not like the style of notations.
 
 ## Expectation Propagation
 [work in progress]
