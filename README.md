@@ -146,7 +146,7 @@ It summrizes some key points about the probabilistic graphical models.
 It also treats the belief propagation in chains and trees for maginal distribution and MAP.
 
 
-## [Sequencial Models (HMM, Baum-Welch, Viterbi, Kalman Filter, RTS-Smoother)](docs/baum_welch_viterbi_kalman/chain_discrete.pdf)
+## [Sequencial Models (HMM, Baum-Welch, Viterbi, Kalman Filter, RTS-Smoother)](docs/baum_welch_viterbi_kalman/baum_welch_viterbi_kalman.pdf)
 
 This is a personal notes as my own memory aid on Hidden Markov Models and Linear Dynamical Systems.
 Specifically the following topics.
