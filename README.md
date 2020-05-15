@@ -17,6 +17,7 @@ I learned it mainly by the following books:
 ## Index
 
 * [PRML 1.58](docs/expectation_of_sample_variance/exp_sample_var.pdf)
+* [Basics Cheat Sheat](docs/basics_cheat_sheat/basics_cheat_sheat.pdf)
 * [EM Algorithm](docs/em_algorithm/em_alg.pdf)
 * [Variational Inference and Mean Field Approximation](docs/variational_inference/variational_inference.pdf)
 * [Latent Direchlet Allocation](docs/latent_direchlet_allocation/lda.pdf)
@@ -24,6 +25,7 @@ I learned it mainly by the following books:
 * [Graphical Models and Belief Propagation](docs/graphical_models/graphical_models.pdf)
 * [Sequencial Models (HMM, Baum-Welch, Viterbi, Kalman Filter, RTS-Smoother)](docs/baum_welch_viterbi_kalman/baum_welch_viterbi_kalman.pdf)
 * [Expectation Propagation](docs/expectation_propagation/expectation_propagation.pdf)
+
 
 I made them, as it was simply fun, and also it solidifies my understanding of
 those topics.
@@ -45,6 +47,12 @@ This equation (1.58) in PRML is apparently the first problem many readers
 including me encounter.
 It’s in pp27, Chapter 1, Introduction.
 It is not apparent to me why it holds, but no proof is given in the book.
+
+## [Basics Cheat Sheat](docs/basics_cheat_sheat/basics_cheat_sheat.pdf)
+
+Deriving the MLE and the loss functions for training from KL divergence.
+Facts of a simple linear Gaussian regression , binary classification, and
+multi-class classification.
 
 
 ## [EM Algorithm](docs/em_algorithm/em_alg.pdf)

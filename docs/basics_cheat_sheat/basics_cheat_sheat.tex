@@ -1,0 +1,236 @@
+\documentclass[a4]{article}
+\usepackage{amssymb}
+\usepackage{amsmath}
+\usepackage{bm}
+\usepackage{url}
+\usepackage{graphicx}
+\DeclareMathOperator*{\argmax}{argmax}
+\DeclareMathOperator*{\argmin}{argmin}
+
+\newtheorem{defn}{Definition}
+
+%opening
+\title{Machine Learning Basics Cheat Sheat}
+\author{Shoichiro Yamanishi}
+
+\begin{document}
+
+\maketitle
+
+\section{Sample Distribution}
+
+Let $X= \{\bm{x}_1, \bm{x}_2, \cdots, \bm{x}_N\}$ be N i.i.d. samples drawn
+from certain (unknown) distribution $p(\bm{x})$,
+which we want to model with $p_{model}(\bm{x}|\bm{\theta})$.
+We define the joint probability distribution as follows.
+
+\begin{equation}
+\begin{aligned}
+p_{sample}(X) &= p_{sample}(\bm{x}_1, \bm{x}_2, \cdots, \bm{x}_N)\\
+&= \delta(\bm{x}-\bm{x}_1)\delta(\bm{x}-\bm{x}_2)
+\cdots\delta(\bm{x}-\bm{x}_N)
+\end{aligned}
+\end{equation}
+
+This can be considered an inifinitely overfitted probability model.
+This is used as a building block 
+to derive MLE and the loss function for inference.
+
+
+For a labeled training data set with additional labels
+$Y =\{y_1, y_2, \cdots y_N,\}$, the sample conditional distribution
+$p_{sample}(Y|X)$ is defined as follows, assuming i.i.d.
+
+\begin{equation}
+\begin{aligned}
+p_{sample}(Y|X) &= 
+p_{sample}(y_1, y_2, \cdots, y_N|\bm{x}_1, \bm{x}_2, \cdots, \bm{x}_N)\\
+&= \delta(y-y_1)\delta(y-y_2)\cdots\delta(y-y_N)
+\end{aligned}
+\end{equation}
+
+Please note that $p_{sample}(X)$ and $p_{sample}(Y|X)$ 
+uses Dirac's delta function, which exists only inside an integral.
+
+
+\section{KL Divergence and Cross Entropy}
+The KL divergence of the real (unknown) distribution $p_{real}(\bm{x})$
+and the model $p_{model}(\bm{x})$ is formed as below.
+\begin{equation}
+\begin{aligned}
+D_{KL}\left(p_{real}(\bm{x}) || p_{model}(\bm{x}|\bm{\theta})\right)
+&= \int p_{real}(\bm{x}) \left(
+    \ln p_{real}(\bm{x}) - \ln p_{model}(\bm{x}|\bm{\theta}) \right) d\bm{x}\\
+&= - \int p_{real}(\bm{x}) \ln p_{model}(\bm{x}|\bm{\theta}) d\bm{x} + const
+\end{aligned}
+\end{equation}
+where we put $\int p_{real}(\bm{x}) \ln  p_{real}(\bm{x})d\bm{x}$ into a
+constant. 
+This means minimizing the KL divergence is equal to minimizing the cross
+entropy
+$- \int p_{real}(\bm{x}) \ln p_{model}(\bm{x}|\bm{\theta}) d\bm{x}$.
+
+Since we don't know $p_{real}(\bm{x})$, we substitute it with the
+sample distribution.
+\begin{equation}
+\begin{aligned}
+-\int p_{sample}(\bm{x}) \ln p_{model}(\bm{x}|\bm{\theta}) d\bm{x}
+&= 
+-\int \delta(\bm{x}-\bm{x}_i)\ln p_{model}(\bm{x}|\bm{\theta}) d\bm{x}\\
+&= -\ln p_{model}(\bm{x}_i|\bm{\theta})
+\end{aligned}
+\end{equation}
+
+For $X= \{\bm{x}_1, \bm{x}_2, \cdots, \bm{x}_N\}$, by i.i.d. assumption,
+$p_{sample}(X)$ and $p_{model}(X)$ are factorized into:
+\begin{equation}
+\begin{aligned}
+p_{sample}(X) &= \prod_{i=1}^N p_{sample}(\bm{x}_i)\\
+p_{model}(X)  &= \prod_{i=1}^N p_{model}(\bm{x}_i|\bm{\theta})
+\end{aligned}
+\end{equation}
+and
+\begin{equation}
+\begin{aligned}
+- \int p_{sample}(X) \ln p_{model}(X|\bm{\theta}) dX
+&= 
+-\int \prod_{i=1}^K \delta(\bm{x}^*_k -\bm{x}_i)
+\sum_{i=1}^K \ln p_{model}(\bm{x}^*_k|\bm{\theta})
+d\bm{x}^*_1d\bm{x}^*_2\cdots d\bm{x}^*_N\\
+&= -\sum_{i=1}^K \ln p_{model}(\bm{x}_i|\bm{\theta})
+\end{aligned}
+\end{equation}
+So, minimizing $-\sum_{i=1}^K \ln p_{model}(\bm{x}_i|\bm{\theta})$ w.r.t 
+$\bm{\theta}$ is equivalent to the Maximum Likelihood Estimate.
+
+For the labeled training data set, 
+\begin{equation}
+\begin{aligned}
+- \int p_{sample}(Y|X) \ln p_{model}( Y | X,\bm{\theta} ) dY
+&= 
+-\int \prod_{i=1}^K \delta(y^*_k - y_i)
+\sum_{i=1}^K \ln p_{model}(y^*_k | \bm{x}_i, \bm{\theta})
+dy^*_1dy^*_2\cdots dy^*_N\\
+&= -\sum_{i=1}^K \ln p_{model}(y_i|\bm{x}_i, \bm{\theta})
+\end{aligned}
+\end{equation}
+
+This is the \emph{cross entropy} loss function for training.
+
+\section{Simple Linear Regression}
+
+\begin{equation}
+\begin{aligned}
+p_{model}(y|\bm{x}) &= \mathcal{N}(y | \bm{w}^T\bm{x}, \sigma^2)\\
+\\
+\ln p_{model}(y|\bm{x}) &\propto -\frac{1}{2\sigma^2}(y - \bm{w}^T\bm{x})^2\\
+\\
+\nabla_{\bm{w}}\ln p_{model}(y|\bm{x}) 
+&= -\frac{1}{\sigma^2}(y - \bm{w}^T\bm{x})\bm{x}\\
+\\
+\nabla_{\bm{w}}\nabla_{\bm{w}}\ln p_{model}(y|\bm{x}) 
+&= H_{\bm{w}}\left(ln p_{model}(y|\bm{x}) \right)\\
+&=\frac{1}{\sigma^2}\bm{x}\bm{x}^T
+\end{aligned}
+\end{equation}
+
+
+\section{Discrinative Binary Classification}
+
+\begin{equation}
+\begin{aligned}
+y \in \{0,1\}\\
+\sigma(\bm{w}^T\bm{x}) &= \frac{1}{1 + \exp(-\bm{w}^T\bm{x})}\\
+\frac{\partial\sigma(\bm{w}^T\bm{x})}{\partial\bm{w}}
+&= \sigma(\bm{w}^T\bm{x}) (1 - \sigma(\bm{w}^T\bm{x}))\bm{x}\\
+p_{model}(y|\bm{x}) &= Bern\left(y|\sigma(\bm{w}^T\bm{x})\right)\\
+&= \sigma(\bm{w}^T\bm{x})^y + (1 - \sigma(\bm{w}^T\bm{x}))^{1 -y}\\
+\\
+\ln p_{model}(y|\bm{x}) &=
+y \ln\sigma(\bm{w}^T\bm{x}) + (1-y)\ln(1 - \sigma(\bm{w}^T\bm{x}))\\
+\\
+\nabla_{\bm{w}}\ln p_{model}(y|\bm{x}) 
+&= \frac{y}{\sigma(\bm{w}^T\bm{x})}
+\sigma(\bm{w}^T\bm{x})(1-\sigma(\bm{w}^T\bm{x}))\bm{x}
+- \frac{1-y}{1 - \sigma(\bm{w}^T\bm{x})}
+\sigma(\bm{w}^T\bm{x})(1-\sigma(\bm{w}^T\bm{x}))\bm{x}\\
+&= y(1 - \sigma(\bm{w}^T\bm{x}))\bm{x} - (1-y)\sigma(\bm{w}^T\bm{x})\bm{x}\\
+&= (y - y\sigma(\bm{w}^T\bm{x}) - 
+    \sigma(\bm{w}^T\bm{x}) + y\sigma(\bm{w}^T\bm{x}))\bm{x}\\
+&= (y - \sigma(\bm{w}^T\bm{x}))\bm{x}\\
+\\
+\nabla_{\bm{w}}\nabla_{\bm{w}}\ln p_{model}(y|\bm{x}) 
+&= H_{\bm{w}}\left(ln p_{model}(y|\bm{x}) \right)\\
+&= \nabla_{\bm{w}}(y - \sigma(\bm{w}^T\bm{x}))\bm{x}\\
+&= - \sigma(\bm{w}^T\bm{x})(1 - \sigma(\bm{w}^T\bm{x}))\bm{x}\bm{x}^T\\
+\end{aligned}
+\end{equation}
+
+\section{Discrinative Multi-Class Classification}
+
+
+\begin{equation}
+\begin{aligned}
+&\bm{y} \in \{0,1\}^K,\hspace{1em} \sum_{i=1}^K y_i = 1 
+\hspace{1em}\text{(one-of-K vector)}\\
+p_{model}(y|\bm{x}) &= \frac{\exp(\bm{w}_j^T\bm{x})}
+    {\sum_{k=1}^K\exp(\bm{w}_k^T\bm{x})}\hspace{1em} \text{where}\:\: y_j = 1\\
+\\
+\ln p_{model}(y|\bm{x}) &= \bm{w}_j^T\bm{x}
+- ln \sum_{k=1}^K\exp(\bm{w}_k^T\bm{x})\hspace{1em} \text{where}\:\: y_j = 1\\
+\\
+\nabla_{\bm{w}_i}\ln p_{model}(y|\bm{x}) 
+&= \delta_{i,j}\bm{x} 
+   - \nabla_{\bm{w}_i} \ln\sum_{k=1}^K\exp(\bm{w}_k^T\bm{x})\\
+&= \delta_{i,j}\bm{x} - \frac{\exp(\bm{w}_i^T\bm{x})\bm{x}}
+                 {\sum_{k=1}^K\exp(\bm{w}_k^T\bm{x})}\\
+&= \left(\delta_{i,j} - \frac{\exp(\bm{w}_i^T\bm{x})}
+     {\sum_{k=1}^K\exp(\bm{w}_k^T\bm{x})}
+   \right) \bm{x} \hspace{1em}\text{where}\:\: y_j = 1\\
+\\
+\nabla_{\bm{w}_i}\nabla_{\bm{w}_i}\ln p_{model}(y|\bm{x}) 
+&=
+-\bm{x}\left(
+\frac{\exp(\bm{w}_i^T\bm{x})\bm{x}^T}
+     {\sum_{k=1}^K\exp(\bm{w}_k^T\bm{x})}
+- \exp(\bm{w}_i^T\bm{x})\frac{\exp(\bm{w}_i^T\bm{x})\bm{x}^T}
+     {\left(\sum_{k=1}^K\exp(\bm{w}_k^T\bm{x})\right)^2}
+\right)\\
+&=
+-\bm{x}\bm{x}^T\left(
+\frac{\exp(\bm{w}_i^T\bm{x})}
+     {\sum_{k=1}^K\exp(\bm{w}_k^T\bm{x})}
+\right)
+\left( 1 -
+\frac{\exp(\bm{w}_i^T\bm{x})}
+     {\sum_{k=1}^K\exp(\bm{w}_k^T\bm{x})} 
+\right)\\
+\\
+\nabla_{\bm{w}_m}\nabla_{\bm{w}_i}\ln p_{model}(y|\bm{x}) 
+&=
+-\bm{x}\left(
+\exp(\bm{w}_i^T\bm{x})\frac{-\exp(\bm{w}_m^T\bm{x})\bm{x}^T}
+     {\left(\sum_{k=1}^K\exp(\bm{w}_k^T\bm{x})\right)^2}
+\right)\\
+&=
+\bm{x}\bm{x}^T\left(
+\frac{\exp(\bm{w}_i^T\bm{x})}
+     {\sum_{k=1}^K\exp(\bm{w}_k^T\bm{x})}
+\right)
+\left(
+\frac{\exp(\bm{w}_i^T\bm{x})}
+     {\sum_{k=1}^K\exp(\bm{w}_k^T\bm{x})} 
+\right)\\
+&\text{where}\:\:m \ne i
+\end{aligned}
+\end{equation}
+
+
+
+
+\bibliography{basics_cheat_sheat.bib}{}
+\bibliographystyle{plain}
+
+
+\end{document}
+
