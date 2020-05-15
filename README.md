@@ -14,7 +14,16 @@ I learned it mainly by the following books:
 
 * David Barber. Bayesian Reasoning and Machine Learning. Cambridge University Press, 2011.
 
+## Index
 
+* [PRML 1.58](docs/expectation_of_sample_variance/exp_sample_var.pdf)
+* [EM Algorithm](docs/em_algorithm/em_alg.pdf)
+* [Variational Inference and Mean Field Approximation](docs/variational_inference/variational_inference.pdf)
+* [Latent Direchlet Allocation](docs/latent_direchlet_allocation/lda.pdf)
+* [Sampling](docs/sampling/sampling.pdf)
+* [Graphical Models and Belief Propagation](docs/graphical_models/graphical_models.pdf)
+* [Sequencial Models (HMM, Baum-Welch, Viterbi, Kalman Filter, RTS-Smoother)](docs/baum_welch_viterbi_kalman/baum_welch_viterbi_kalman.pdf)
+* [Expectation Propagation](docs/expectation_propagation/expectation_propagation.pdf)
 
 I made them, as it was simply fun, and also it solidifies my understanding of
 those topics.
@@ -164,8 +173,55 @@ For deriving RTS smoother, I used an excellent course notes from Professor Särk
 Also, Chap 24 of Barber contains comprehensive materials for LDS,
 but it is a bit difficult to understand and I personally do not like the style of notations.
 
-## Expectation Propagation
-[work in progress]
+## [Expectation Propagation](docs/expectation_propagation/expectation_propagation.pdf)
+
+This is an expository document for expectation propagation for my future self.
+It is aimed at a self contained document.
+It converts the following three topics
+
+* general expectation propagation with the exponential family
+
+* detailed explanation of the clutter problem
+
+* detailed explanation of loopy belief propagation
+
+
+I have found the following subtle but important points during my own learning, which are not well explained
+in the existing literature. The emphasis are given on those points in this document.
+
+### KL-divergence takes proper (normalized) density functions.
+The algorithm depends on the minimization of the KL divergenace to which two proper (normalized) density
+must be given, but we approximate a conditional q(θ) ~= p(x|θ) where x is observed.
+This is not mormalized and a careful conversion is needed when applying the KL divergence.
+
+### distinction between *moments* and *natural* parametes: The algorithm operates on
+the moments, which are not necessarily the natural parameters for the underlying model.
+For example, Gaussian distribution takes the 1st-order moment
+ as the mean parameter but the 2nd-order moment is different from variance.
+
+### careful treatment of normalization coefficients (partition function). Throughout the algorithm
+factors are added and removed from the current approximations. For those operations the normalizations
+coefficients are carefully maintaned.
+
+### *moment matching* requires some tricks. The moment matching for the example clutter problem requires
+some tricks, which are not explained well in the existing literature.
+
+Minka is the original and seminal article of the expectation propagation.
+That is too concise as a study material as a lot of details are omitted. It presents
+the clutter problem, but the updated momments are presented without details.
+PRML follows the same style as Minka but
+the details of update of approximation maintaining the normalization coefficient (partition function)
+is omitted.
+Barber briefly touches on the belief propagation in relation to expectation propagation
+in section 28.7.
+The course notes by Honkela at Helsinki Univ. gives a very nice explanation.
+However the treatment of the normalization coefficients is not thorough.
+The lecture video by Simon Barthelmé
+at Centre International de Rencontres Mathématiques gives a good explanation for cavity, hybrid,
+narutal parameters and moment parameters.
+
+None of the materials above are detailed enough for normies like me to study this topic, and that
+was the motivation for me to write this up for my furuter self and possibly others.
 
 ## Back Propagation (Basics, CNN, RNN, LSTM)
 [work in progress]
