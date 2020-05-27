@@ -25,7 +25,7 @@ I learned it mainly by the following books:
 * [Graphical Models and Belief Propagation](docs/graphical_models/graphical_models.pdf)
 * [Sequencial Models (HMM, Baum-Welch, Viterbi, Kalman Filter, RTS-Smoother)](docs/baum_welch_viterbi_kalman/baum_welch_viterbi_kalman.pdf)
 * [Expectation Propagation](docs/expectation_propagation/expectation_propagation.pdf)
-
+* [DNN, CNN, RNN, LSTM, Attention, and Transformer](docs/dnn_cnn_rnn_lstm_attention_transformer/dnn_cnn_rnn_lstm_attention.pdf)
 
 I made them, as it was simply fun, and also it solidifies my understanding of
 those topics.
@@ -231,7 +231,7 @@ narutal parameters and moment parameters.
 None of the materials above are detailed enough for normies like me to study this topic, and that
 was the motivation for me to write this up for my furuter self and possibly others.
 
-## [Back Propagation (DNN, CNN, RNN, LSTM, Attention, and Transformer)](docs/dnn_cnn_rnn_lstm_attention_transformer/dnn_cnn_rnn_lstm_attention.pdf)
+## [DNN, CNN, RNN, LSTM, Attention, and Transformer](docs/dnn_cnn_rnn_lstm_attention_transformer/dnn_cnn_rnn_lstm_attention.pdf)
 This document describes the following.
 
 * DNN Backprop mechanism
