@@ -231,8 +231,20 @@ narutal parameters and moment parameters.
 None of the materials above are detailed enough for normies like me to study this topic, and that
 was the motivation for me to write this up for my furuter self and possibly others.
 
-## Back Propagation (Basics, CNN, RNN, LSTM)
-[work in progress]
+## [Back Propagation (DNN, CNN, RNN, LSTM, Attention, and Transformer)](docs/dnn_cnn_rnn_lstm_attention_transformer/dnn_cnn_rnn_lstm_attention.pdf)
+This document describes the following.
+
+* DNN Backprop mechanism
+
+* CNN Forward propagation and Backprop in multi-channel 2-dimensional convolution kernel with step size $s$.
+
+* RNN Backprop
+
+* The reason of LSTM as a generalization of leaky units with learned parameters to cope with vanishing gradient problem.
+
+* Traditional Attention on top of bi-directional RNN
+
+* Transformer's multi-head attention part.
 
 ## Contrastive Divergence
 [planned]

@@ -117,6 +117,77 @@ dy^*_1dy^*_2\cdots dy^*_N\\
 
 This is the \emph{cross entropy} loss function for training.
 
+\subsection{Mutual Information and Descriminiative Training}
+
+
+The mutual information is defined as follows.
+\begin{equation}
+\begin{aligned}
+I(\bm{x},\bm{y}) &= \int \int p(\bm{x},\bm{y})\ln\frac{p(\bm{x},\bm{y})}{p(\bm{x})p(\bm{y})} d\bm{x}d\bm{y}\\
+&=\int \int p(\bm{x},\bm{y})\left(\ln\frac{p(\bm{x},\bm{y})}{p(\bm{x})} - p(\bm{y})\right) d\bm{x}d\bm{y}\\
+&=\int \int p(\bm{x},\bm{y})\left(
+\ln\frac{ p(\bm{x}|\bm{y})p(\bm{y}) }
+        { \int p(\bm{x}|\bm{y})p(\bm{y}) d\bm{y} }
+- p(\bm{y})
+\right) d\bm{x}d\bm{y}\\
+&=
+\mathbb{E}_{\bm{x},\bm{y} \sim p(\bm{x},\bm{y})}\left[
+\ln\frac{ p(\bm{x}|\bm{y})p(\bm{y}) }
+        { \int p(\bm{x}|\bm{y})p(\bm{y}) d\bm{y} }
+- p(\bm{y})
+\right]\\
+\end{aligned}
+\end{equation}
+
+For some discriminative tasks, you want to maximize the following instead of the maximum likelihood.
+
+\begin{equation}
+\begin{aligned}
+\underset{\bm{\theta}}{\mathrm{argmax}}\left\{
+\ln p_{model}(Y|X, \bm{\theta})
+\right\}\label{eq:mmie_define}
+\end{aligned}
+\end{equation}
+where $X = (\bm{x}_1, \bm{x}_2, \cdots, \bm{x}_N)$ are the observed inputs and
+ $Y = (\bm{y}_1, \bm{y}_2, \cdots, \bm{y}_N)$ are the observed outputs such as transcription.
+After the training and hence $\bm{\theta}$ is fixed, $\bm{y}$ is inferred from a given $\bm{x}$.
+
+The conditional in equation \ref{eq:mmie_define} is expanded as follows.
+
+\begin{equation}
+\begin{aligned}
+\ln p_{model}(Y|X, \bm{\theta}) &=
+\sum_{i=1}^N \ln p_{model}(\bm{y}_i|\bm{x}_i, \bm{\theta})\\
+&=
+\sum_{i=1}^N \ln \left(
+\frac{ p_{model}(\bm{x}_i|\bm{y}_i, \bm{\theta}) p(\bm{y}_i) }
+     { \int p_{model}(\bm{x}_i|\bm{y}^*, \bm{\theta}) p(\bm{y}^*)d\bm{y}^* }
+\right)\\
+&\approx
+\mathbb{E}_{\bm{x},\bm{y} \sim p_{sample}(\bm{x},\bm{y})}\left[
+\ln \frac{ p_{model}(\bm{x}|\bm{y}, \bm{\theta}) p(\bm{y}) }
+     { \int p_{model}(\bm{x}|\bm{y}^*, \bm{\theta}) p(\bm{y}^*)d\bm{y}^* }
+\right]\\
+\end{aligned}
+\end{equation}
+
+With similarity to the definition to the mutual information, equation \ref{eq:mmie_define} is
+called \emph{Maximum Mutual Information Estimate}. It is used for speech recognition etc.
+
+As a regularizer, a factor $\kappa$ is applied to the conditional probability density as follows.
+\begin{equation}
+\begin{aligned}
+\ln p_{model}(Y|X, \bm{\theta}) 
+&\approx
+\mathbb{E}_{\bm{x},\bm{y} \sim p_{sample}(\bm{x},\bm{y})}\left[
+\ln \frac{ p_{model}(\bm{x}|\bm{y}, \bm{\theta})^\kappa p(\bm{y}) }
+     { \int p_{model}(\bm{x}|\bm{y}^*, \bm{\theta})^\kappa p(\bm{y}^*)d\bm{y}^* }
+\right]\\
+\end{aligned}
+\end{equation}
+where $\kappa \approx 0.1$.
+
+
 \section{Simple Linear Regression}
 
 \begin{equation}
