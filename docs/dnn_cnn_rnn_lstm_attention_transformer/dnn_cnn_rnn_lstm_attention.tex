@@ -382,13 +382,14 @@ The main part of LSTM is formulated as follows.
 \end{equation}
 \begin{equation}
 \begin{aligned}
-\hspace{-10em}\bm{h}^{(t)} = \alpha_o \tanh(\bm{c}^{(t)})
+\hspace{-10em}\bm{h}^{(t)} = \alpha_o \tanh(\bm{c}^{(t)})\label{eq:lstm2}\\
 \end{aligned}
 \end{equation}
 
 The first term in equation \ref{eq:lstm1} represents the traditional RNN part, and
 the second term is for the additive cell memory part, which is analogous to leaky unit.
 Those terms are controlled by the following gates.
+I think the $\tanh$ in equation  \ref{eq:lstm2} works as a layer-wise normalization.
 
 \begin{equation}
 \begin{aligned}

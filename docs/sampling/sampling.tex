@@ -901,7 +901,7 @@ A({\partial}R_a, {\partial}R_b) = \min \left\{
         p( \bm{z}_a, \bm{r}_a ) q( \bm{z}_b, \bm{r}_b | \bm{z}_a, \bm{r}_a )
     \partial(\bm{z}_a\bm{r}_a) \partial(\bm{z}_b\bm{r}_b)
 }
-\right\}
+\right\}\label{eq:hmc_acceptance2}
 \end{aligned}
 \end{equation}
 
@@ -953,7 +953,7 @@ Because of the conservation of the volume and the reversibility of $\phi$,
 $$ {\partial}R_a = \bm{\phi}({\partial}R_b) \Leftrightarrow
  {\partial}R_b = \bm{\phi}({\partial}R_a)$$
 
-Due to the determinism of $phi$, the undefined case in equation 
+Due to the determinism of $\phi$, the undefined case in equation 
 \ref{eq:hmc_acceptance} never occurs.
 Also, due to conservation of energy, the first case in equations
 \ref{eq:hmc_acceptance} \& \ref{eq:hmc_acceptance2} is theoretically $1$,
